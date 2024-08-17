@@ -6,7 +6,7 @@ const LockModule = buildModule("ProjectKeychainModule", (m) => {
 
   const projectKeychainContract = m.contract("ProjectKeychain0", [architect]);
 
-  console.log("Preparing Ignition sequence... ⏱\n");
+  console.log("Preparing Ignition sequence... ⏱ \n");
 
   return { projectKeychainContract };
 });
