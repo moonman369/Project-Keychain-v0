@@ -38,10 +38,17 @@ contract ProjectKeychain0 {
         _;
     }
 
-    modifier  holderExists (address _holderAddress) {
+    modifier holderExists (address _holderAddress) {
         require(addressToKeychainHolder[_holderAddress].joiningTimestamp > 0 &&
                 addressToKeychainHolder[_holderAddress].holderAddress != address(0),
                 "Holder address does not exist!");
+        _;
+    }
+
+        modifier holderDoesNotExist (address _holderAddress) {
+        require(addressToKeychainHolder[_holderAddress].joiningTimestamp == 0 &&
+                addressToKeychainHolder[_holderAddress].holderAddress == address(0),
+                "Holder with this address already exists!");
         _;
     }
 
@@ -53,7 +60,7 @@ contract ProjectKeychain0 {
             i_architect = _architect; 
     }
 
-    function createNewKeychainHolder (address _holderAddress, bytes memory _holderUsernameBytes) external callerIsHolder(_holderAddress) {
+    function createNewKeychainHolder (address _holderAddress, bytes memory _holderUsernameBytes) external callerIsHolder(_holderAddress) holderDoesNotExist(_holderAddress) {
         KeychainHolder memory newHolder = KeychainHolder({
                 joiningTimestamp: block.timestamp,
                 keyChainCount: 0,
@@ -64,7 +71,7 @@ contract ProjectKeychain0 {
         emit NewKeychainHolder(_holderAddress, string(_holderUsernameBytes));
     }
 
-    function createNewKeychain (address _holderAddress, bytes memory _keyIdentifier, bytes memory _keySecret) external holderExists(_holderAddress) callerIsHolder(_holderAddress) {
+    function createNewKeychain (address _holderAddress, bytes memory _keyIdentifier, bytes memory _keySecret) external callerIsHolder(_holderAddress) holderExists(_holderAddress) {
         uint256 newKeyChainSerialId = addressToKeychainHolder[_holderAddress].keyChainCount;
         Keychain memory newKeychain = Keychain({
             keychainSerialId: newKeyChainSerialId,
@@ -78,7 +85,7 @@ contract ProjectKeychain0 {
         emit NewKeychain(_holderAddress);
     }
 
-    function updateKeychainSecret (address _holderAddress, uint256 _newKeyChainSerialId, bytes memory _keySecret) external holderExists(_holderAddress) callerIsHolder(_holderAddress) {
+    function updateKeychainSecret (address _holderAddress, uint256 _newKeyChainSerialId, bytes memory _keySecret) external callerIsHolder(_holderAddress) holderExists(_holderAddress) {
         // uint256 newKeyChainSerialId = addressToKeychainHolder[_holderAddress].keyChainCount;
         // Keychain memory newKeychain = Keychain({
         //     keychainSerialId: newKeyChainSerialId,
@@ -117,4 +124,4 @@ contract ProjectKeychain0 {
         return addressToKeychain[_holderAddress][keychainSerialId];
     }
 
-}
+}s
